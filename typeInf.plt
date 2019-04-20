@@ -9,8 +9,13 @@
 */
 
 % tests for typeExp
-test(typeExp_iplus) :- 
+test(typeExp_iplus):- 
     typeExp(iplus(int,int), int).
+
+test(typeExp_less_than, [nondet]):-
+    typeExp(X < float, T),
+    assertion(X == float),
+    assertion(T == bool).
 
 % this test should fail
 test(typeExp_iplus_F, [fail]) :-
@@ -40,5 +45,16 @@ test(mockedFct, [nondet]) :-
     asserta(gvar(my_fct, [int, float])), % add my_fct(int)-> float to the gloval variables
     typeExp(my_fct(X), T), % infer type of expression using or function
     assertion(X==int), assertion(T==float). % make sure the types infered are correct
+
+% test if statements
+test(infer_if_T, [nondet]):-
+    deleteGVars(),
+    infer([if(float < Y, [float], [ELSE])], float),
+    assertion(Y == float),
+    assertion(ELSE == float).
+
+test(infer_if_F, [fail]):-
+    deleteGVars(),
+    infer([if(float < float, [float], [int])], float).
 
 :-end_tests(typeInf).
